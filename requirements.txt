@@ -1,0 +1,26 @@
+# Core Framework
+fastapi==0.104.1
+uvicorn==0.24.0.post1
+
+# AI/ML Stack
+torch==2.1.0
+transformers==4.34.1
+accelerate==0.24.1  # For optimized inference
+
+# Streaming & Utilities
+sse-starlette==1.8.0
+python-dotenv==1.0.0
+
+# Monitoring (Optional)
+prometheus-client==0.17.1
+starlette-prometheus==1.1.0
+
+# Production Extras
+gunicorn==21.2.0  # For production deployment
+httpx==0.25.1     # Async HTTP client
+loguru==0.7.2     # Structured logging
+
+# Development (Optional)
+pytest==7.4.2
+httpx==0.25.1
+pytest-asyncio==0.21.1
