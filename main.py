@@ -6,6 +6,8 @@ from batch_processor.schemas import PredictionRequest, PredictionResponse
 from batch_processor.index import BatchProcessor
 from sse_starlette.sse import EventSourceResponse
 from config import MODEL_NAME, BATCH_SIZE, MAX_WAIT
+from data.preprocess_data import load_and_tokenize_dataset
+from data.fine_tune_model import CustomModelTrainer
 from utils import timeit
 import torch
 import asyncio
@@ -17,14 +19,26 @@ async def lifespan(app: FastAPI):
     torch.set_num_threads(3)
     torch.set_num_interop_threads(3)
 
-    print("Loading model...")
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-    model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
+    # train model every 6 hours
+    result = load_and_tokenize_dataset("data/data.csv")
+    model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME, num_labels=2)
+    
+    # train the model
+    trainer = CustomModelTrainer(model, 
+                                 result['tokenizer'], 
+                                 tokenized_val_dataset=result["validation"], 
+                                  tokenized_train_dataset=result["train"])
+    trainer.train_model()
+    trainer.save_model()
+
+ 
+    print("Loading fine tuned model...") 
+
     model.eval() # Set to evaluation mode
 
     #init batch processor
     app.state.processor = BatchProcessor(
-         tokenizer=tokenizer,
+         tokenizer=result['tokenizer'],
          model=model,
          batch_size=BATCH_SIZE,
          max_wait=MAX_WAIT

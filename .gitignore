@@ -43,3 +43,6 @@ logs/
 # Docker
 docker-compose.yml
 Dockerfile
+
+results/
+saved_model/
